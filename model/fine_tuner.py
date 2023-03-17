@@ -16,7 +16,7 @@ from helper import clean_molecule, check_model, check_molecules
 np.random.seed(1)
 
 
-class FineTuner():
+class FineTuner:
 
     def __init__(self, experiment_name='ForwardRNN'):
 
@@ -150,10 +150,10 @@ class FineTuner():
             new_molecules = np.array(new_molecules)
             pd.DataFrame(new_molecules).to_csv(
                 stor_dir + '/' + self._experiment_name + '/molecules/molecule_fold_' + str(fold) + '_epochs_' + str(
-                    i) + '.csv', header=None)
+                    i) + '.csv', header=False)
 
             # Store statistic
             store_stat = np.array(tot_stat).reshape(i + 1, -1)
             pd.DataFrame(np.array(store_stat)).to_csv(
                 stor_dir + '/' + self._experiment_name + '/statistic/stat_fold_' + str(fold) + '.csv',
-                header=None)
+                header=False)

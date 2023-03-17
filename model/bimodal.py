@@ -11,7 +11,7 @@ torch.manual_seed(1)
 np.random.seed(5)
 
 
-class BIMODAL():
+class BIMODAL:
 
     def __init__(self, molecule_size=7, encoding_dim=55, lr=.01, hidden_units=128):
 

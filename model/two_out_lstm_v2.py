@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 
 
-
 class TwoOutLSTM_v2(nn.Module):
 
     def __init__(self, input_dim=110, hidden_dim=256, layers=2):

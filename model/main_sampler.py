@@ -9,4 +9,4 @@ for model in ['BIMODAL_fixed_512', 'BIMODAL_fixed_1024',
               'NADE_random_512', 'NADE_random_1024', 'NADE_random_512_aug_5', 'NADE_random_1024_aug_5'
               ]:
     s = Sampler(model)
-    s.sample( N=1000)
+    s.sample(N=1000)

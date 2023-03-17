@@ -3,7 +3,7 @@ Implementation of different training methods
 """
 
 import numpy as np
-from sklearn.model_selection import KFold, train_test_split, ShuffleSplit
+from sklearn.model_selection import KFold, train_test_split
 import pandas as pd
 import configparser
 from fb_rnn import FBRNN
@@ -18,7 +18,7 @@ from helper import clean_molecule, check_model, check_molecules
 np.random.seed(1)
 
 
-class Trainer():
+class Trainer:
 
     def __init__(self, experiment_name='ForwardRNN'):
 
@@ -146,13 +146,11 @@ class Trainer():
             new_molecules = np.array(new_molecules)
             pd.DataFrame(new_molecules).to_csv(
                 stor_dir + '/' + self._experiment_name + '/molecules/molecule_fold_' + str(fold) + '_epochs_' + str(
-                    i) + '.csv', header=None)
+                    i) + '.csv', header=False)
 
             # Store statistic
             store_stat = np.array(tot_stat).reshape(i + 1, -1)
-            pd.DataFrame(np.array(store_stat)).to_csv(
-                stor_dir + '/' + self._experiment_name + '/statistic/stat_fold_' + str(fold) + '.csv',
-                header=None)
+            pd.DataFrame(np.array(store_stat)).to_csv(f"{stor_dir}/{self._experiment_name}/statistic/stat_fold_{fold}.csv", header=False)
 
     def single_run(self, stor_dir='../evaluation/', restart=False):
         '''Training with validation and store data'''
@@ -255,18 +253,18 @@ class Trainer():
             new_molecules = np.array(new_molecules)
             pd.DataFrame(new_molecules).to_csv(
                 stor_dir + '/' + self._experiment_name + '/molecules/molecule_fold_' + str(fold) + '_epochs_' + str(
-                    i) + '.csv', header=None)
+                    i) + '.csv', header=False)
 
             # Store statistic
             store_stat = np.array(tot_stat).reshape(i + 1, -1)
             pd.DataFrame(np.array(store_stat)).to_csv(
                 stor_dir + '/' + self._experiment_name + '/statistic/stat_fold_' + str(fold) + '.csv',
-                header=None)
+                header=False)
 
             # Store validation data
             pd.DataFrame(np.array(tot_loss).reshape(-1, 1)).to_csv(
                 stor_dir + '/' + self._experiment_name + '/validation/val_fold_' + str(fold) + '.csv',
-                header=None)
+                header=False)
 
     def cross_validation(self, stor_dir='../evaluation/', restart=False):
         '''Perform cross-validation and store data'''
@@ -376,15 +374,15 @@ class Trainer():
                 new_molecules = np.array(new_molecules)
                 pd.DataFrame(new_molecules).to_csv(
                     stor_dir + '/' + self._experiment_name + '/molecules/molecule_fold_' + str(fold) + '_epochs_' + str(
-                        i) + '.csv', header=None)
+                        i) + '.csv', header=False)
 
                 # Store statistic
                 store_stat = np.array(tot_stat).reshape(i + 1, -1)
                 pd.DataFrame(np.array(store_stat)).to_csv(
-                    stor_dir + '/' + self._experiment_name + '/statistic/stat_fold_' + str(fold) + '.csv', header=None)
+                    stor_dir + '/' + self._experiment_name + '/statistic/stat_fold_' + str(fold) + '.csv', header=False)
 
                 # Store validation data
                 pd.DataFrame(np.array(tot_loss).reshape(-1, 1)).to_csv(
-                    stor_dir + '/' + self._experiment_name + '/validation/val_fold_' + str(fold) + '.csv', header=None)
+                    stor_dir + '/' + self._experiment_name + '/validation/val_fold_' + str(fold) + '.csv', header=False)
 
 

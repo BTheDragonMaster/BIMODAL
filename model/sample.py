@@ -17,7 +17,7 @@ from helper import clean_molecule, check_valid
 np.random.seed(1)
 
 
-class Sampler():
+class Sampler:
 
     def __init__(self, experiment_name):
         self._encoder = SMILESEncoder()
@@ -72,7 +72,7 @@ class Sampler():
         for i, mol_dat in enumerate(self._data):
             self._data[i] = clean_molecule(mol_dat, self._model_type)
 
-    def sample(self, N=100, stor_dir='../evaluation', T=0.7, fold=[1], epoch=[9], valid=True, novel=True, unique=True, write_csv=True):
+    def sample(self, N=100, stor_dir='../evaluation', T=0.7, fold=None, epoch=None, valid=True, novel=True, unique=True, write_csv=True):
 
         '''Sample from a model where the number of novel valid unique molecules is fixed
         :param stor_dir:    directory where the generated SMILES are saved
@@ -86,6 +86,11 @@ class Sampler():
         :param write_csv If True, the generated SMILES are written in stor_dir
         :return: res_molecules: list with all the generated SMILES
         '''
+
+        if fold is None:
+            fold = [1]
+        if epoch is None:
+            epoch = [9]
         
         res_molecules = []
         print('Sampling: started')
@@ -130,9 +135,9 @@ class Sampler():
                     if not os.path.exists(stor_dir + '/' + self._experiment_name + '/molecules/'):
                         os.makedirs(stor_dir + '/' + self._experiment_name + '/molecules/')
                     mol = np.array(new_molecules).reshape(-1)
-                    pd.DataFrame(mol).to_csv(stor_dir + '/' + self._experiment_name + '/molecules/' + name, header=None)
+                    pd.DataFrame(mol).to_csv(stor_dir + '/' + self._experiment_name + '/molecules/' + name, header=False)
         
-            res_molecules.append(new_molecules)
+                res_molecules.append(new_molecules)
         
         print('Sampling: done')
         return res_molecules

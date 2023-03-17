@@ -6,14 +6,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from one_out_lstm import OneOutLSTM
-import torch.nn.functional as F
-from scipy.misc import logsumexp
 
 torch.manual_seed(1)
 np.random.seed(5)
 
 
-class ForwardRNN():
+class ForwardRNN:
 
     def __init__(self, molecule_size=7, encoding_dim=55, lr=.01, hidden_units=256):
 
@@ -29,10 +27,20 @@ class ForwardRNN():
         self._lstm = OneOutLSTM(self._input_dim, self._hidden_units, self._layer)
 
         # Check availability of GPUs
-        self._gpu = torch.cuda.is_available()
-        self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.is_available():
+            self._gpu = "cuda"
+            self._device = torch.device("cuda:0")
+        elif torch.backends.mps.is_available():
+            self._gpu = "mps"
+            self._device = torch.device("mps")
+        else:
+            self._gpu = False
+            self._device = torch.device("cpu")
+
         if torch.cuda.is_available():
             self._lstm = self._lstm.cuda()
+        elif torch.backends.mps.is_available():
+            self._lstm = self._lstm.mps()
 
         self._optimizer = torch.optim.Adam(self._lstm.parameters(), lr=self._lr, betas=(0.9, 0.999))
 
@@ -181,7 +189,7 @@ class ForwardRNN():
 
     def sample(self, start_token, T=1):
         '''Generate new molecule
-        :param middle_token:    starting token
+        :param start_token:    starting token
         :param T:               sampling temperature
         :return molecule:       newly generated molecule (molecule_length, encoding_length
         '''

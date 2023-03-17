@@ -11,7 +11,7 @@ torch.manual_seed(1)
 np.random.seed(5)
 
 
-class NADE():
+class NADE:
 
     def __init__(self, molecule_size=7, encoding_dim=55, lr=.01, hidden_units=256, generation='random',
                  missing_token=np.zeros((55))):
@@ -166,6 +166,7 @@ class NADE():
                     missing_data = np.repeat(self._missing, batch_end - batch_start, axis=0)
                     missing_data = np.swapaxes(missing_data, 0, 1)
                     missing_data = torch.from_numpy(missing_data.astype('float32')).to(self._device)
+                    out = None
 
                     # The losses for position p and position molecule_size-p-1 are computed within a single loop iteration
                     for p in range(1, int(np.ceil(self._molecule_size / 2))):
@@ -179,6 +180,8 @@ class NADE():
                         for j in range(p):
                             input = batch_data[j].view(1, batch_end - batch_start, -1)
                             out = self._lstm_fordir(input)
+
+                        assert out is not None
                         pred_1 = out
 
                         # Read token at position p, since this token is predicted before the token at position molecule_size-1-p
