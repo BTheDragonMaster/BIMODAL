@@ -32,11 +32,19 @@ class NADE:
         self._lstm_backdir = OneOutLSTM(self._input_dim, self._hidden_units, self._layer)
 
         # Check availability of GPUs
-        self._gpu = torch.cuda.is_available()
-        self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
         if torch.cuda.is_available():
-            self._lstm_fordir = self._lstm_fordir.cuda()
-            self._lstm_backdir = self._lstm_backdir.cuda()
+            self._gpu = True
+            self._device = torch.device("cuda:0")
+        elif torch.backends.mps.is_available():
+            self._gpu = True
+            self._device = torch.device("mps")
+        else:
+            self._gpu = False
+            self._device = torch.device("cpu")
+
+        self._lstm_fordir.to(self._device)
+        self._lstm_backdir.to(self._device)
 
         # Adam optimizer
         self._optimizer = torch.optim.Adam(list(self._lstm_fordir.parameters()) + list(self._lstm_backdir.parameters()),
@@ -55,9 +63,8 @@ class NADE:
             self._lstm_fordir = torch.load(name + '_fordir.dat', map_location=self._device)
             self._lstm_backdir = torch.load(name + '_backdir.dat', map_location=self._device)
 
-        if torch.cuda.is_available():
-            self._lstm_fordir = self._lstm_fordir.cuda()
-            self._lstm_backdir = self._lstm_backdir.cuda()
+        self._lstm_fordir.to(self._device)
+        self._lstm_backdir.to(self._device)
 
         self._optimizer = torch.optim.Adam(list(self._lstm_fordir.parameters()) + list(self._lstm_backdir.parameters()),
                                            lr=self._lr, betas=(0.9, 0.999))
@@ -80,7 +87,7 @@ class NADE:
         label = torch.from_numpy(label).to(self._device)
 
         # Calculate number of batches per epoch
-        if (n_samples % batch_size) is 0:
+        if (n_samples % batch_size) == 0:
             n_iter = n_samples // batch_size
         else:
             n_iter = n_samples // batch_size + 1
@@ -254,7 +261,7 @@ class NADE:
             tot_loss = 0
 
             # Calculate number of batches per epoch
-            if (n_samples % batch_size) is 0:
+            if (n_samples % batch_size) == 0:
                 n_iter = n_samples // batch_size
             else:
                 n_iter = n_samples // batch_size + 1

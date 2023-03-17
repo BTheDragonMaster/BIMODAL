@@ -28,51 +28,47 @@ class ForwardRNN:
 
         # Check availability of GPUs
         if torch.cuda.is_available():
-            self._gpu = "cuda"
+            self._gpu = True
             self._device = torch.device("cuda:0")
         elif torch.backends.mps.is_available():
-            self._gpu = "mps"
+            self._gpu = True
             self._device = torch.device("mps")
         else:
             self._gpu = False
             self._device = torch.device("cpu")
 
-        if torch.cuda.is_available():
-            self._lstm = self._lstm.cuda()
-        elif torch.backends.mps.is_available():
-            self._lstm = self._lstm.mps()
+        self._lstm.to(self._device)
 
         self._optimizer = torch.optim.Adam(self._lstm.parameters(), lr=self._lr, betas=(0.9, 0.999))
 
         self._loss = nn.CrossEntropyLoss(reduction='mean')
 
     def print_model(self):
-        '''Print name and shape of all tensors'''
+        """Print name and shape of all tensors"""
         for name, p in self._lstm.state_dict().items():
             print(name)
             print(p.shape)
 
     def build(self, name=None):
         """Build new model or load model by name"""
-        if (name is None):
+        if name is None:
             self._lstm = OneOutLSTM(self._input_dim, self._hidden_units, self._layer)
 
         else:
             self._lstm = torch.load(name + '.dat', map_location=self._device)
 
-        if torch.cuda.is_available():
-            self._lstm = self._lstm.cuda()
+        self._lstm.to(self._device)
 
         self._optimizer = torch.optim.Adam(self._lstm.parameters(), lr=self._lr, betas=(0.9, 0.999))
 
     def train(self, data, label, epochs=1, batch_size=1):
-        '''Train the model
+        """Train the model
         :param  data:   data array (n_samples, molecule_size, encoding_length)
         :param  label:  label array (n_samples, molecule_size)
         :param  epochs: number of epochs for training
         :param  batch_size: batch_size for training
         :return statistic:  array storing computed losses (epochs, batch)
-        '''
+        """
 
         # Compute tensor of labels
         label = torch.from_numpy(label).to(self._device)
@@ -87,7 +83,7 @@ class ForwardRNN:
         data = torch.from_numpy(data).to(self._device)
 
         # Calculate number of batches per epoch
-        if (n_samples % batch_size) is 0:
+        if (n_samples % batch_size) == 0:
             n_iter = n_samples // batch_size
         else:
             n_iter = n_samples // batch_size + 1

@@ -28,10 +28,19 @@ class BIMODAL:
         self._lstm = BiDirLSTM(self._input_dim, self._hidden_units, self._layer)
 
         # Check availability of GPUs
-        self._gpu = torch.cuda.is_available()
-        self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         if torch.cuda.is_available():
-            self._lstm = self._lstm.cuda()
+            self._gpu = True
+            self._device = torch.device("cuda:0")
+        elif torch.backends.mps.is_available():
+            self._gpu = True
+            self._device = torch.device("mps")
+        else:
+            self._gpu = False
+            self._device = torch.device("cpu")
+
+        self._lstm.to(self._device)
+
+        if self._gpu:
             print('GPU available')
 
         # Adam optimizer
@@ -44,14 +53,13 @@ class BIMODAL:
         :param name:    model name
         """
 
-        if (name is None):
+        if name is None:
             self._lstm = BiDirLSTM(self._input_dim, self._hidden_units, self._layer)
 
         else:
             self._lstm = torch.load(name + '.dat', map_location=self._device)
 
-        if torch.cuda.is_available():
-            self._lstm = self._lstm.cuda()
+        self._lstm.to(self._device)
 
         self._optimizer = torch.optim.Adam(self._lstm.parameters(), lr=self._lr, betas=(0.9, 0.999))
 
@@ -80,7 +88,7 @@ class BIMODAL:
         label = torch.from_numpy(label).to(self._device)
 
         # Calculate number of batches per epoch
-        if (n_samples % batch_size) is 0:
+        if (n_samples % batch_size) == 0:
             n_iter = n_samples // batch_size
         else:
             n_iter = n_samples // batch_size + 1
@@ -179,7 +187,7 @@ class BIMODAL:
             tot_loss = 0
 
             # Calculate number of batches per epoch
-            if (n_samples % batch_size) is 0:
+            if (n_samples % batch_size) == 0:
                 n_iter = n_samples // batch_size
             else:
                 n_iter = n_samples // batch_size + 1

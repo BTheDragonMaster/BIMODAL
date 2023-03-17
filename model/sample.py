@@ -25,6 +25,7 @@ class Sampler:
         # Read parameter used during training
         self._config = configparser.ConfigParser()
         self._config.read('../experiments/' + experiment_name + '.ini')
+        print(self._config.sections())
         
         self._model_type = self._config['MODEL']['model']
         self._experiment_name = experiment_name
